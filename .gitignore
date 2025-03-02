@@ -1,0 +1,41 @@
+# Terraform-specific files
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Local environment settings
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Kubernetes-specific files
+kubeconfig
+.kube/
+*.kubeconfig
+config.yaml
+
+# Ignore logs and output files
+*.log
+*.out
+*.bak
+
+# Ignore credentials and sensitive data
+.env
+*.pem
+*.key
+*.crt
+*.secrets
+secrets.yaml
+
+# Ignore compiled files and editor-specific files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore cloud provider credentials (AWS)
+.aws/
