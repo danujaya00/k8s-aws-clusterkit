@@ -1,0 +1,11 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "K8sNodeDescribeResources",
+      "Effect": "Allow",
+      "Action": ["ec2:DescribeInstances", "ec2:DescribeRegions"],
+      "Resource": "*"
+    }
+  ]
+}
