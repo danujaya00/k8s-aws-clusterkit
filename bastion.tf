@@ -4,7 +4,7 @@ resource "aws_security_group" "bastion_sg" {
   description = "SSH Bastion Hosts"
   vpc_id      = aws_vpc.ec2_cluster_vpc.id
 
-  # Allow SSH access from anywhere (Update to your IP for security)
+  # Allow SSH access from anywhere
   ingress {
     from_port   = 22
     to_port     = 22

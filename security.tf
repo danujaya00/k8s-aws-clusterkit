@@ -8,7 +8,7 @@ resource "aws_security_group" "k8s_ami_sg" {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id] # Allow SSH only via Bastion
+    security_groups = [aws_security_group.bastion_sg.id]
   }
 
   egress {
