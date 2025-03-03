@@ -1,4 +1,8 @@
 #!/bin/bash
+set -euxo pipefail 
+
+# Log output to file for debugging
+exec > /var/log/k8s-ami-setup.log 2>&1
 
 # Update system
 sudo apt update -y
@@ -37,17 +41,41 @@ sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/con
 
 # Restart containerd
 sudo systemctl restart containerd
-ps -ef | grep containerd
+sleep 5
 
-# Install latest Kubernetes packages
-sudo curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
+# Check if containerd is running
+if ! pgrep -x "containerd" > /dev/null; then
+    echo "ERROR: containerd is NOT running!" >&2
+    exit 1
+fi
+
+# Add the Kubernetes repository for Ubuntu 24.04
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
+# Install latest Kubernetes packages
 sudo apt update -y
 sudo apt install -y kubelet kubeadm kubectl
 
 # Disable automatic updates for Kubernetes packages
 sudo apt-mark hold kubelet kubeadm kubectl
 
+# Final verification
+if ! command -v kubeadm &> /dev/null || ! command -v kubectl &> /dev/null; then
+    echo "ERROR: Kubernetes installation failed!" >&2
+    exit 1
+fi
+
+# Mark cloud-init completion
+touch /var/lib/cloud/instance/boot-finished
+
+# Create a completion marker for Terraform
+touch /tmp/k8s-setup-done
+
+# Wait for Terraform to detect the completion
+echo "Kubernetes setup complete. Shutting down in 30 seconds..."
+sleep 12
+
 # Shut down the instance after provisioning
+sync
 sudo shutdown -h now
