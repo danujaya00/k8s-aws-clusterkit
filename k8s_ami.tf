@@ -1,7 +1,14 @@
 
 # Create EC2 instance for AMI creation
 resource "aws_instance" "k8s_ami_instance" {
-  ami                    = "ami-04b4f1a9cf54c11d0" # Ubuntu 24.04 AMI
+
+  # Depends on the Bastion Host, Nat Gateway & Security Group
+  depends_on = [
+    aws_instance.bastion_host,
+    aws_nat_gateway.nat_gw,
+    aws_security_group.k8s_ami_sg
+  ]
+  ami                    = "ami-04b4f1a9cf54c11d0"
   instance_type          = "t2.micro"
   key_name               = "aws-kube-cluster"
   subnet_id              = aws_subnet.private_subnet.id
@@ -15,9 +22,48 @@ resource "aws_instance" "k8s_ami_instance" {
     Name = "kubernetes-node-ami"
   }
 
-  # Auto shutdown after provisioning
   lifecycle {
-    ignore_changes = [user_data]
+    create_before_destroy = true
+  }
+}
+
+
+# Wait for provisioning & instance shutdown before creating the AMI
+resource "null_resource" "wait_for_provisioning" {
+  depends_on = [aws_instance.k8s_ami_instance]
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("~/.ssh/aws-kube-cluster.pem")
+      host        = aws_instance.k8s_ami_instance.private_ip
+
+      # Use the Bastion Host as an SSH Proxy
+      bastion_host        = aws_instance.bastion_host.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("~/.ssh/aws-kube-cluster.pem")
+    }
+
+    inline = [
+      "echo 'Waiting for Kubernetes setup to complete...'",
+      "while [ ! -f /tmp/k8s-setup-done ]; do sleep 10; done",
+      "echo 'Setup complete, waiting for instance to shut down...'"
+    ]
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Checking if instance is stopped..."
+      while true; do
+        STATUS=$(aws ec2 describe-instances --instance-ids ${aws_instance.k8s_ami_instance.id} --query 'Reservations[*].Instances[*].State.Name' --output text)
+        echo "Current state: $STATUS"
+        if [ "$STATUS" = "stopped" ]; then
+          echo "Instance is stopped. Proceeding with AMI creation."
+          break
+        fi
+        sleep 10
+      done
+    EOT
   }
 }
 
@@ -27,7 +73,7 @@ resource "aws_ami_from_instance" "k8s_ami" {
   source_instance_id = aws_instance.k8s_ami_instance.id
   description        = "Kubernetes v1.30 AMI"
 
-  depends_on = [aws_instance.k8s_ami_instance]
+  depends_on = [null_resource.wait_for_provisioning]
 
   tags = {
     Name = "k8s-ami"

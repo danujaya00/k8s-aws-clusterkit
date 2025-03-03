@@ -49,6 +49,8 @@ resource "aws_instance" "k8s_master" {
     Name                                = "ec2-cluster-k8s-master"
     "kubernetes.io/cluster/ec2-cluster" = "owned"
   }
+
+  depends_on = [aws_ami_from_instance.k8s_ami]
 }
 
 # Output the private IP of the master node
