@@ -10,7 +10,7 @@ resource "aws_instance" "k8s_ami_instance" {
   ]
   ami                    = "ami-04b4f1a9cf54c11d0"
   instance_type          = "t2.micro"
-  key_name               = "aws-kube-cluster"
+  key_name               = aws_key_pair.k8s_key.key_name
   subnet_id              = aws_subnet.private_subnet.id
   vpc_security_group_ids = [aws_security_group.k8s_ami_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.k8s_node_instance_profile.name
@@ -35,13 +35,13 @@ resource "null_resource" "wait_for_provisioning" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("~/.ssh/aws-kube-cluster.pem")
+      private_key = file("${path.module}/aws-kube-cluster.pem")
       host        = aws_instance.k8s_ami_instance.private_ip
 
       # Use the Bastion Host as an SSH Proxy
       bastion_host        = aws_instance.bastion_host.public_ip
       bastion_user        = "ubuntu"
-      bastion_private_key = file("~/.ssh/aws-kube-cluster.pem")
+      bastion_private_key = file("${path.module}/aws-kube-cluster.pem")
     }
 
     inline = [

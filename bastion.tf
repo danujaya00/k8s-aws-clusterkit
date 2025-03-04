@@ -29,7 +29,7 @@ resource "aws_security_group" "bastion_sg" {
 resource "aws_instance" "bastion_host" {
   ami                         = "ami-04b4f1a9cf54c11d0"
   instance_type               = "t2.micro"
-  key_name                    = "aws-kube-cluster"
+  key_name                    = aws_key_pair.k8s_key.key_name
   subnet_id                   = aws_subnet.public_subnet.id
   vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
   associate_public_ip_address = true
