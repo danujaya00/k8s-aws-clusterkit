@@ -30,18 +30,22 @@ resource "aws_instance" "k8s_ami_instance" {
 
 # Wait for provisioning & instance shutdown before creating the AMI
 resource "null_resource" "wait_for_provisioning" {
-  depends_on = [aws_instance.k8s_ami_instance]
+  depends_on = [aws_instance.k8s_ami_instance,
+    aws_instance.bastion_host,
+    aws_key_pair.k8s_key,
+    local_file.private_key
+  ]
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("${path.module}/aws-kube-cluster.pem")
+      private_key = tls_private_key.k8s_key.private_key_pem
       host        = aws_instance.k8s_ami_instance.private_ip
 
       # Use the Bastion Host as an SSH Proxy
       bastion_host        = aws_instance.bastion_host.public_ip
       bastion_user        = "ubuntu"
-      bastion_private_key = file("${path.module}/aws-kube-cluster.pem")
+      bastion_private_key = tls_private_key.k8s_key.private_key_pem
     }
 
     inline = [
