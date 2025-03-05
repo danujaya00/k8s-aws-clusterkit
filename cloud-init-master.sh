@@ -62,5 +62,12 @@ echo "export KUBECONFIG=/etc/kubernetes/admin.conf" | sudo tee -a /root/.bashrc 
 # Save the join command for worker nodes
 kubeadm token create --print-join-command > /root/kubeadm-join.sh || true
 
+# install Cilium CNI
+helm repo add cilium https://helm.cilium.io/
+helm repo updatehelm install cilium cilium/cilium --namespace 
+helm install cilium cilium/cilium --namespace kube-system \
+  --set containerRuntime.socketPath=/run/containerd/containerd.sock \
+  --set kubeProxyReplacement=true
+
 # Ensure script finishes before Cloud-Init marks completion
 sync
