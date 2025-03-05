@@ -36,7 +36,7 @@ resource "aws_security_group" "k8s_master_sg" {
 # Launch Kubernetes Master Node
 resource "aws_instance" "k8s_master" {
   ami                    = aws_ami_from_instance.k8s_ami.id
-  instance_type          = "t2.micro"
+  instance_type          = "t2.medium"
   key_name               = aws_key_pair.k8s_key.key_name
   subnet_id              = aws_subnet.private_subnet.id
   vpc_security_group_ids = [aws_security_group.k8s_master_sg.id]
