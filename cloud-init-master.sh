@@ -32,7 +32,7 @@ fi
 
 # Initialize Kubernetes
 for i in {1..3}; do
-    sudo kubeadm init --token-ttl 0 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem > /root/kube-init.log 2>&1 && break
+    sudo kubeadm init --pod-network-cidr=10.100.0.0/16  --token-ttl 0  --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem > /root/kube-init.log 2>&1 && break
     echo "Retrying kubeadm init ($i)..."
     sleep 10
 done
