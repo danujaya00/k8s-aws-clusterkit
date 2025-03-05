@@ -64,7 +64,7 @@ kubeadm token create --print-join-command > /root/kubeadm-join.sh || true
 
 # install Cilium CNI
 helm repo add cilium https://helm.cilium.io/
-helm repo updatehelm install cilium cilium/cilium --namespace 
+helm repo update
 helm install cilium cilium/cilium --namespace kube-system \
   --set containerRuntime.socketPath=/run/containerd/containerd.sock \
   --set kubeProxyReplacement=true
