@@ -1,38 +1,3 @@
-# Security Group for Kubernetes Master Node
-resource "aws_security_group" "k8s_master_sg" {
-  name        = "k8s-master"
-  description = "Kubernetes Master Hosts"
-  vpc_id      = aws_vpc.ec2_cluster_vpc.id
-
-  # Allow SSH from Bastion Host only
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id]
-  }
-
-  # Allow K8s API Server (Port 6443) access from worker nodes
-  ingress {
-    from_port   = 6443
-    to_port     = 6443
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
-  }
-
-  # Allow all outgoing traffic 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "k8s-master-sg"
-  }
-}
-
 # Launch Kubernetes Master Node
 resource "aws_instance" "k8s_master" {
   ami                    = aws_ami_from_instance.k8s_ami.id
@@ -57,4 +22,34 @@ resource "aws_instance" "k8s_master" {
 output "k8s_master_private_ip" {
   description = "Private IP of the Kubernetes Master Node"
   value       = aws_instance.k8s_master.private_ip
+}
+
+resource "null_resource" "copy_script" {
+  depends_on = [aws_instance.k8s_master]
+
+  provisioner "file" {
+    source      = "master_update_token.sh"
+    destination = "/home/ubuntu/master_update_token.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /root/scripts",
+      "sudo mv /home/ubuntu/master_update_token.sh /root/scripts/master_update_token.sh",
+      "sudo chmod +x /root/scripts/master_update_token.sh",
+      "sudo /root/scripts/master_update_token.sh"
+    ]
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = tls_private_key.k8s_key.private_key_pem
+    host        = aws_instance.k8s_master.private_ip
+
+    # Use the Bastion Host as an SSH Proxy
+    bastion_host        = aws_instance.bastion_host.public_ip
+    bastion_user        = "ubuntu"
+    bastion_private_key = tls_private_key.k8s_key.private_key_pem
+  }
+
 }

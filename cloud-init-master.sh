@@ -67,7 +67,24 @@ helm repo add cilium https://helm.cilium.io/
 helm repo update
 helm install cilium cilium/cilium --namespace kube-system \
   --set containerRuntime.socketPath=/run/containerd/containerd.sock \
-  --set kubeProxyReplacement=true
+  --set kubeProxyReplacement=true \
+  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.100.0.0/16"
+
+
+while [ ! -f /root/scripts/master_update_token.sh]; do sleep 1; done
+
+# Copy the script to the correct location
+sudo cp /root/scripts/master_update_token.sh /etc/cron.daily/master_update_token.sh
+sudo chmod +x /etc/cron.daily/master_update_token.sh
+
+# Ensure the script runs daily
+sudo ln -s /etc/cron.daily/master_update_token.sh /etc/cron.d/master_update_token
+
+# Run the script immediately
+sudo /etc/cron.daily/master_update_token.sh
+
+# Mark cloud-init completion
+touch /var/lib/cloud/instance/boot-finished
 
 # Ensure script finishes before Cloud-Init marks completion
 sync

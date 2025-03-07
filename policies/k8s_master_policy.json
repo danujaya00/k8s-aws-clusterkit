@@ -39,6 +39,12 @@
         "ec2:RevokeSecurityGroupIngress"
       ],
       "Resource": "*"
+    },
+    {
+      "Sid": "K8sMasterSSMParameterReadWrite",
+      "Effect": "Allow",
+      "Action": ["ssm:PutParameter"],
+      "Resource": "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/kubeadm/*"
     }
   ]
 }
