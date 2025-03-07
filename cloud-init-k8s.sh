@@ -66,6 +66,19 @@ if ! command -v kubeadm &> /dev/null || ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
+# Install unzip if not already installed
+sudo apt install unzip -y
+
+# Install AWS CLI (system-wide)
+if ! command -v aws &>/dev/null; then
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  unzip /tmp/awscliv2.zip -d /tmp/
+  sudo /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+fi
+
+# Verify aws CLI availability
+aws --version
+
 # Install Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh
