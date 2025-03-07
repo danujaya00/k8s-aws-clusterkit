@@ -71,7 +71,9 @@ helm install cilium cilium/cilium --namespace kube-system \
   --set ipam.operator.clusterPoolIPv4PodCIDRList="10.100.0.0/16"
 
 
-while [ ! -f /root/scripts/master_update_token.sh]; do sleep 1; done
+sleep 10
+
+while [ ! -f /root/scripts/master_update_token.sh ]; do sleep 1; done
 
 # Copy the script to the correct location
 sudo cp /root/scripts/master_update_token.sh /etc/cron.daily/master_update_token.sh

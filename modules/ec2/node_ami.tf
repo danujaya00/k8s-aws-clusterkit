@@ -3,7 +3,10 @@ resource "aws_instance" "k8s_ami_instance" {
 
   # Depends on the Bastion Host, Nat Gateway & Security Group
   depends_on = [
-    aws_instance.bastion_host
+    aws_instance.bastion_host,
+    var.internet_gateway_id,
+    var.nat_gateway_id
+
   ]
 
   ami                    = var.general_ami_id

@@ -45,6 +45,8 @@ module "ec2" {
   worker_subnet_id           = module.vpc.private_subnet_id
   bastion_subnet_id          = module.vpc.public_subnet_id
   worker_vpc_zone_identifier = module.vpc.worker_vpc_zone_identifier
+  internet_gateway_id        = module.vpc.internet_gateway_id
+  nat_gateway_id             = module.vpc.nat_gateway_id
 
   security_group_master  = [module.security_groups.security_group_master]
   security_group_worker  = [module.security_groups.security_group_worker]

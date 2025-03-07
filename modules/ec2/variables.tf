@@ -70,4 +70,10 @@ variable "worker_vpc_zone_identifier" {
   type        = list(string)
 }
 
+variable "internet_gateway_id" {
+  description = "Internet Gateway ID"
+}
 
+variable "nat_gateway_id" {
+  description = "NAT Gateway ID"
+}
