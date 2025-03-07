@@ -1,5 +1,4 @@
-#* Roles For Master Node *#
-
+#* Roles For Master Node
 # IAM Role for Kubernetes Master
 resource "aws_iam_role" "k8s_master_role" {
   name = "K8sMaster"
@@ -69,7 +68,7 @@ resource "aws_iam_role_policy" "k8s_master_policy" {
           "ssm:PutParameter"
         ]
         Resource = [
-          "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/kubeadm/*"
+          "arn:aws:ssm:${var.region}:${var.account_id}:parameter/kubeadm/*"
         ]
       }
     ]
@@ -117,7 +116,7 @@ resource "aws_iam_role_policy" "k8s_node_policy" {
         Effect = "Allow"
         Action = ["ssm:GetParameter"]
         Resource = [
-          "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/kubeadm/*"
+          "arn:aws:ssm:${var.region}:${var.account_id}:parameter/kubeadm/*"
         ]
       }
     ]

@@ -2,16 +2,16 @@
 resource "aws_launch_template" "k8_worker_lt" {
   name_prefix   = "k8-worker-lt-"
   image_id      = aws_ami_from_instance.k8s_ami.id
-  instance_type = "t2.micro"
-  key_name      = aws_key_pair.k8s_key.key_name
+  instance_type = var.worker_instance_type
+  key_name      = var.ssh_key_name
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.k8s_node_instance_profile.name
+    name = var.worker_iam_instance_profile
   }
 
-  vpc_security_group_ids = [aws_security_group.k8s_worker_node_sg.id]
+  vpc_security_group_ids = var.security_group_worker
 
-  user_data = base64encode(file("worker_data.sh"))
+  user_data = base64encode(file("${path.root}/scripts/worker_data.sh"))
 
   lifecycle {
     create_before_destroy = true
@@ -26,8 +26,7 @@ resource "aws_autoscaling_group" "k8_worker_asg" {
   desired_capacity    = 2
   min_size            = 2
   max_size            = 5
-  vpc_zone_identifier = [aws_subnet.private_subnet.id]
-
+  vpc_zone_identifier = var.worker_vpc_zone_identifier
   launch_template {
     id      = aws_launch_template.k8_worker_lt.id
     version = "$Latest"

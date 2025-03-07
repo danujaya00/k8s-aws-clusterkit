@@ -1,8 +1,37 @@
+#* Create a Security Group for the Bastion Host
+
+resource "aws_security_group" "bastion_sg" {
+  name        = "ssh-bastion"
+  description = "SSH Bastion Hosts"
+  vpc_id      = var.vpc_id
+
+  # Allow SSH access from anywhere
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow all outgoing traffic from the Bastion
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "ssh-bastion-sg"
+  }
+}
+
+
 # Security Group for Kubernetes Nodes
 resource "aws_security_group" "k8s_ami_sg" {
   name        = "k8s-ami"
   description = "Kubernetes AMI Instances"
-  vpc_id      = aws_vpc.ec2_cluster_vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port       = 22
@@ -28,7 +57,7 @@ resource "aws_security_group" "k8s_ami_sg" {
 resource "aws_security_group" "k8s_master_sg" {
   name        = "k8s-master"
   description = "Kubernetes Master Hosts"
-  vpc_id      = aws_vpc.ec2_cluster_vpc.id
+  vpc_id      = var.vpc_id
 
   # Allow SSH from Bastion Host
   ingress {
@@ -93,7 +122,7 @@ resource "aws_security_group" "k8s_master_sg" {
 resource "aws_security_group" "k8s_worker_node_sg" {
   name        = "k8s-worker-node-sg"
   description = "Kubernetes Worker Nodes"
-  vpc_id      = aws_vpc.ec2_cluster_vpc.id
+  vpc_id      = var.vpc_id
 
   # SSH from Bastion Host
   ingress {

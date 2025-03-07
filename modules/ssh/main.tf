@@ -13,6 +13,6 @@ resource "aws_key_pair" "k8s_key" {
 # Save the private key to a local file
 resource "local_file" "private_key" {
   content         = tls_private_key.k8s_key.private_key_pem
-  filename        = "${path.module}/aws-kube-cluster.pem"
+  filename        = "${path.module}/../../aws-kube-cluster.pem"
   file_permission = "0600"
 }
