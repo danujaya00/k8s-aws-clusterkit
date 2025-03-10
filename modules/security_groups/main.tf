@@ -77,6 +77,26 @@ resource "aws_security_group" "k8s_master_sg" {
     cidr_blocks = ["10.0.0.0/16"]
   }
 
+  # Cilium health check
+  ingress {
+    description = "Cilium health check"
+    from_port   = 4240
+    to_port     = 4240
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+    self        = true
+
+  }
+
+  # Allow Wireguard UDP
+  ingress {
+    description = "Allow Wireguard UDP"
+    from_port   = 51820
+    to_port     = 51820
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
   # Kubelet communication from private subnet
   ingress {
     description = "Worker Nodes Kubelet Communication"
@@ -132,6 +152,27 @@ resource "aws_security_group" "k8s_worker_node_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.bastion_sg.id]
   }
+
+
+  # Cilium health check
+  ingress {
+    description = "Cilium health check"
+    from_port   = 4240
+    to_port     = 4240
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+    self        = true
+  }
+
+  ingress {
+    description = "Allow Wireguard UDP"
+    from_port   = 51820
+    to_port     = 51820
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+
 
   # Allow Kubernetes API Server responses from master node subnet
   ingress {

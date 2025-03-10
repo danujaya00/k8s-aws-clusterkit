@@ -29,7 +29,7 @@ resource "aws_autoscaling_group" "k8_worker_asg" {
   vpc_zone_identifier = var.worker_vpc_zone_identifier
   launch_template {
     id      = aws_launch_template.k8_worker_lt.id
-    version = "$Latest"
+    version = aws_launch_template.k8_worker_lt.latest_version
   }
 
   tag {

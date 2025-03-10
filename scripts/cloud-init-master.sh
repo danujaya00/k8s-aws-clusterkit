@@ -62,14 +62,28 @@ echo "export KUBECONFIG=/etc/kubernetes/admin.conf" | sudo tee -a /root/.bashrc 
 # Save the join command for worker nodes
 kubeadm token create --print-join-command > /root/kubeadm-join.sh || true
 
+for i in {1..5}; do
+    kubectl get nodes && break
+    echo "Waiting for Kubernetes API..."
+    sleep 10
+done
+
+# Install wireguard
+sudo apt-get update
+sudo apt-get install -y wireguard
+
+# enable wireguard
+sudo modprobe wireguard
+
 # install Cilium CNI
 helm repo add cilium https://helm.cilium.io/
 helm repo update
 helm install cilium cilium/cilium --namespace kube-system \
   --set containerRuntime.socketPath=/run/containerd/containerd.sock \
   --set kubeProxyReplacement=true \
-  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.100.0.0/16"
-
+  --set ipam.operator.clusterPoolIPv4PodCIDRList="10.100.0.0/16"\
+  --set encryption.enabled=true \
+  --set encryption.type=wireguard
 
 sleep 10
 
