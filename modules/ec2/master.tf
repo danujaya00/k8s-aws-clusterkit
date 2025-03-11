@@ -32,7 +32,7 @@ resource "null_resource" "copy_script" {
       "sudo mkdir -p /root/scripts",
       "sudo mv /home/ubuntu/master_update_token.sh /root/scripts/master_update_token.sh",
       "sudo chmod +x /root/scripts/master_update_token.sh",
-      "sudo /root/scripts/master_update_token.sh"
+      "echo 'Script copied successfully'"
     ]
   }
   connection {

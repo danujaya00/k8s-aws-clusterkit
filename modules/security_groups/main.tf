@@ -138,7 +138,7 @@ resource "aws_security_group" "k8s_master_sg" {
 }
 
 
-# Security Group for Kubernetes Worker Nodes
+#* Security Group for Kubernetes Worker Nodes
 resource "aws_security_group" "k8s_worker_node_sg" {
   name        = "k8s-worker-node-sg"
   description = "Kubernetes Worker Nodes"
@@ -237,5 +237,60 @@ resource "aws_security_group" "k8s_worker_node_sg" {
 
   tags = {
     Name = "k8s-nodes-sg"
+  }
+}
+
+resource "aws_security_group_rule" "worker_allow_alb" {
+  description              = "Allow traffic from ALB on NodePort"
+  type                     = "ingress"
+  from_port                = 30080
+  to_port                  = 30080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.k8s_worker_node_sg.id
+  source_security_group_id = aws_security_group.k8s-cluster-alb-sg.id
+}
+
+resource "aws_security_group_rule" "worker_allow_alb_https" {
+  description              = "Allow ALB to send TCP traffic to NodePort 30443"
+  type                     = "ingress"
+  from_port                = 30443
+  to_port                  = 30443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.k8s_worker_node_sg.id
+  source_security_group_id = aws_security_group.k8s-cluster-alb-sg.id
+}
+
+#* Security Group for the Load Balancer
+
+resource "aws_security_group" "k8s-cluster-alb-sg" {
+  name   = "k8s-cluster-alb-sg"
+  vpc_id = var.vpc_id
+
+  ingress {
+    description = "Allow HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "k8s-cluster-alb-sg"
   }
 }

@@ -15,3 +15,9 @@ output "k8s_master_private_ip" {
   description = "Private IP of the Kubernetes Master Node"
   value       = aws_instance.k8s_master.private_ip
 }
+
+# autoscaling group name
+output "k8_worker_asg_name" {
+  description = "Name of the Kubernetes Worker ASG"
+  value       = aws_autoscaling_group.k8_worker_asg.name
+}

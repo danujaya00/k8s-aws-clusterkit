@@ -77,3 +77,7 @@ variable "internet_gateway_id" {
 variable "nat_gateway_id" {
   description = "NAT Gateway ID"
 }
+
+# variable "alb_dns_name_var" {
+#   description = "DNS name of the Application Load Balancer"
+# }

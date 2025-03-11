@@ -1,4 +1,3 @@
-
 terraform {
   required_version = ">= 1.2.0"
   required_providers {
@@ -9,7 +8,7 @@ terraform {
   }
 }
 
-# 🔹 VPC Module
+# VPC Module
 module "vpc" {
   source   = "./modules/vpc"
   region   = var.region
@@ -17,24 +16,24 @@ module "vpc" {
 
 }
 
-# 🔹 Security Groups Module
+# Security Groups Module
 module "security_groups" {
   source = "./modules/security_groups"
   vpc_id = module.vpc.vpc_id
 }
 
-# 🔹 IAM Module
+# IAM Module
 module "iam" {
   source     = "./modules/iam"
   account_id = data.aws_caller_identity.current.account_id
 }
 
-# 🔹 SSH Key Pair Module
+# SSH Key Pair Module
 module "ssh" {
   source = "./modules/ssh"
 }
 
-# 🔹 EC2 Instances Module
+# EC2 Instances Module
 module "ec2" {
   source               = "./modules/ec2"
   general_ami_id       = "ami-04b4f1a9cf54c11d0"
@@ -60,4 +59,14 @@ module "ec2" {
   ami_private_key = module.ssh.private_key
 
   cluster_name = var.cluster_name
+  # alb_dns_name_var = module.load_balancer.alb_dns_name
 }
+
+# # Load Balancer Module
+# module "load_balancer" {
+#   source                 = "./modules/load_balancer"
+#   vpc_id                 = module.vpc.vpc_id
+#   alb_sg                 = module.security_groups.security_group_alb
+#   vpc_subnet             = module.vpc.public_subnet_ids
+#   autoscaling_group_name = module.ec2.k8_worker_asg_name
+# }

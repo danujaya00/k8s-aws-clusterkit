@@ -17,3 +17,8 @@ output "security_group_bastion" {
 output "security_group_ami" {
   value = aws_security_group.k8s_ami_sg.id
 }
+
+# alb security group id
+output "security_group_alb" {
+  value = aws_security_group.k8s-cluster-alb-sg.id
+}

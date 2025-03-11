@@ -31,3 +31,9 @@ output "nat_gateway_id" {
 }
 
 
+output "public_subnet_ids" {
+  value = [
+    aws_subnet.public_subnet.id,
+    aws_subnet.lb_subnet.id
+  ]
+}
