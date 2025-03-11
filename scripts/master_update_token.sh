@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# sleep for 30 seconds to allow the master to initialize
+sleep 30
+
 # Generate the join command from kubeadm
 JOIN_CMD=$(kubeadm token create --print-join-command)
 
