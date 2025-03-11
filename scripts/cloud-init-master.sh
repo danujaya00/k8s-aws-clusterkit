@@ -87,7 +87,7 @@ helm install cilium cilium/cilium --namespace kube-system \
 
 sleep 10
 
-while [ ! -f /root/scripts/master_update_token.sh ]; do sleep 1; done
+while [ ! -f /root/scripts/master_update_token.sh ]; do sleep 10; done
 
 # Copy the script to the correct location
 sudo cp /root/scripts/master_update_token.sh /etc/cron.daily/master_update_token.sh
@@ -98,6 +98,16 @@ sudo ln -s /etc/cron.daily/master_update_token.sh /etc/cron.d/master_update_toke
 
 # Run the script immediately
 sudo /etc/cron.daily/master_update_token.sh
+
+# # Add Helm Repos
+# helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+# helm repo update
+# helm install nginx-ingress ingress-nginx/ingress-nginx \
+#   --namespace ingress-nginx \
+#   --create-namespace \
+#   --set controller.service.type=NodePort \
+#   --set controller.service.nodePorts.http=30080 \
+#   --set controller.service.nodePorts.https="" 
 
 # Mark cloud-init completion
 touch /var/lib/cloud/instance/boot-finished
