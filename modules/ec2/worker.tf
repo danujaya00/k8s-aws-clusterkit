@@ -1,5 +1,7 @@
 # create a new launch template and autoscaling group for the worker nodes.
 resource "aws_launch_template" "k8_worker_lt" {
+  depends_on = [null_resource.copy_script]
+
   name_prefix   = "k8-worker-lt-"
   image_id      = aws_ami_from_instance.k8s_ami.id
   instance_type = var.worker_instance_type
@@ -20,7 +22,8 @@ resource "aws_launch_template" "k8_worker_lt" {
 
 # Autoscaling group for worker nodes
 resource "aws_autoscaling_group" "k8_worker_asg" {
-  depends_on = [null_resource.copy_script]
+  depends_on = [null_resource.copy_script,
+  aws_launch_template.k8_worker_lt]
 
   name_prefix         = "k8-worker-asg-"
   desired_capacity    = 2

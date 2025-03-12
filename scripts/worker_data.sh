@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euxo pipefail
+exec > /var/log/worker-data.log 2>&1
 
 # Update packages
 sudo apt update -y
