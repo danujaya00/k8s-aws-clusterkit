@@ -59,14 +59,13 @@ module "ec2" {
   ami_private_key = module.ssh.private_key
 
   cluster_name = var.cluster_name
-  # alb_dns_name_var = module.load_balancer.alb_dns_name
 }
 
-# # Load Balancer Module
-# module "load_balancer" {
-#   source                 = "./modules/load_balancer"
-#   vpc_id                 = module.vpc.vpc_id
-#   alb_sg                 = module.security_groups.security_group_alb
-#   vpc_subnet             = module.vpc.public_subnet_ids
-#   autoscaling_group_name = module.ec2.k8_worker_asg_name
-# }
+# Load Balancer Module
+module "load_balancer" {
+  source                 = "./modules/load_balancer"
+  vpc_id                 = module.vpc.vpc_id
+  alb_sg                 = module.security_groups.security_group_alb
+  vpc_subnet             = module.vpc.public_subnet_ids
+  autoscaling_group_name = module.ec2.k8_worker_asg_name
+}

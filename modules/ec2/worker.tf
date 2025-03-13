@@ -165,6 +165,8 @@ resource "null_resource" "test_deployment" {
       "kind: Ingress",
       "metadata:",
       "  name: default",
+      "  annotations:",
+      "    nginx.ingress.kubernetes.io/backend-protocol: \"HTTP\"",
       "spec:",
       "  ingressClassName: nginx",
       "  rules:",
