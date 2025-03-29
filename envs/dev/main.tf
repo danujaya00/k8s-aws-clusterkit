@@ -10,7 +10,7 @@ terraform {
 
 # VPC Module
 module "vpc" {
-  source   = "./modules/vpc"
+  source   = "../../modules/vpc"
   region   = var.region
   vpc_cidr = "10.0.0.0/16"
 
@@ -18,24 +18,24 @@ module "vpc" {
 
 # Security Groups Module
 module "security_groups" {
-  source = "./modules/security_groups"
+  source = "../../modules/security_groups"
   vpc_id = module.vpc.vpc_id
 }
 
 # IAM Module
 module "iam" {
-  source     = "./modules/iam"
+  source     = "../../modules/iam"
   account_id = data.aws_caller_identity.current.account_id
 }
 
 # SSH Key Pair Module
 module "ssh" {
-  source = "./modules/ssh"
+  source = "../../modules/ssh"
 }
 
 # EC2 Instances Module
 module "ec2" {
-  source               = "./modules/ec2"
+  source               = "../../modules/ec2"
   general_ami_id       = "ami-04b4f1a9cf54c11d0"
   master_instance_type = "t2.medium"
   worker_instance_type = "t2.micro"
@@ -63,7 +63,7 @@ module "ec2" {
 
 # Load Balancer Module
 module "load_balancer" {
-  source                 = "./modules/load_balancer"
+  source                 = "../../modules/load_balancer"
   vpc_id                 = module.vpc.vpc_id
   alb_sg                 = module.security_groups.security_group_alb
   vpc_subnet             = module.vpc.public_subnet_ids
